@@ -32,7 +32,14 @@ module Parcel
       def has_parcel(name, options = {})
         options = { :class => :zip }.merge(options).merge({ :name => name })
 
-        include(InstanceMethods)
+        unless included_modules.include?(InstanceMethods)
+          include(InstanceMethods)
+          
+          if defined?(ActiveRecord) && is_a?(ActiveRecord::Base)
+            after_save :commit_parcels!
+            after_destroy :destroy_parcels!
+          end
+        end
       
         define_method(name.to_sym) do
           instance_variable_get("@_parcel_#{name}") || begin
@@ -48,6 +55,7 @@ module Parcel
           
           instance_variable_set("@_parcel_#{name}", Parcel.create_repository(self, options, input))
         end
+        
       end
     end
     

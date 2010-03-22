@@ -97,3 +97,4 @@ Parcel works with direct assignment from File and Rails upload objects - anythin
 * Improve repository API to support other types of archives (tar, 7z, rar, git, svn, etc)
 * Documentation and tests.
 * Deleting files from a repository.
+* Better cleanup of temporary files.
