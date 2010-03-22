@@ -49,7 +49,7 @@ module Parcel
     
     merge_opts = framework_opts.merge({ :class_name => underscore(reference.class.name) }).merge(options)
     
-    puts merge_opts.inspect
+    merge_opts[:id] = ("%08d" % merge_opts[:id].to_s).scan(/..../)
     
     merge_opts.to_a.sort_by { |(k,v)| -k.to_s.length }.each do |(k,v)|
       new_path = new_path.gsub(":#{k}", v.to_s)
