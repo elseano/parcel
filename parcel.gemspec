@@ -11,6 +11,6 @@ Gem::Specification.new do |spec|
   EOF
   spec.name = "parcel"
   spec.summary = "Simple repository management"
-  spec.version = "0.3"
+  spec.version = "0.4"
   spec.homepage = "http://github.com/elseano/parcel"
 end
