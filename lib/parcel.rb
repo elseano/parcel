@@ -13,9 +13,12 @@ module Parcel
     @options[:storage_root] = value
   end
   
+  # Generates a temporary path for use by Parcel as a scratch space
+  # when working with repositories.
   def self.temp_path(filename)
+    name = File.basename(filename, File.extname(filename))
     date_stamp = "%04d_%02d_%02d" % [Time.now.year, Time.now.month, Time.now.day]
-    path = File.join(temp_root, date_stamp, "#{Time.now.to_i}_#{rand(999999)}_#{filename}")
+    path = File.join(temp_root, date_stamp, "#{Time.now.to_i}_#{rand(999999)}_#{name}", filename)
     FileUtils.mkdir_p( File.dirname(path) )
     path
   end
