@@ -14,11 +14,12 @@ module Parcel
   end
   
   # Generates a temporary path for use by Parcel as a scratch space
-  # when working with repositories.
+  # when working with repositories. Parcel is designed to create many thousands of files
+  # a day, so we use a random number to split the directories.
   def self.temp_path(filename)
     name = File.basename(filename, File.extname(filename))
     date_stamp = "%04d_%02d_%02d" % [Time.now.year, Time.now.month, Time.now.day]
-    path = File.join(temp_root, date_stamp, "#{Time.now.to_i}_#{rand(999999)}_#{name}", filename)
+    path = File.join(temp_root, date_stamp, Time.now.hour.to_s, (Time.now.min / 15).to_s, "#{Time.now.to_i}_#{rand(999999)}_#{name}", filename)
     FileUtils.mkdir_p( File.dirname(path) )
     path
   end
