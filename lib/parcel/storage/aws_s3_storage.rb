@@ -3,20 +3,46 @@ module Parcel
 
 		class AwsS3Storage < Base
 
+			class << self
+
+				def setup(aws_access_key_id, aws_secret_access_key)
+					@aws = Aws::S3.new(aws_access_key_id, aws_secret_access_key)
+				end
+
+				def aws
+					@aws
+				end
+
+			end
+
 			def path
 				File.join(*[object.send(:parcel_path), options[:name]].reject { |x| x.to_s.length == 0 })
 			end
 
-			def write(stream)
+			def bucket
 				raise "You need to specify the bucket for has_parcel" if options[:bucket].nil?
-				AWS::S3::S3Object.store(path(object, options), stream, options[:bucket])
+				@bucket ||= self.class.aws.bucket(options[:bucket])
+			end
+
+			def write(stream)
+				key = bucket.key(path)
+				key.put(stream)
 			end
 
 			def read
-				Tempfile.open(path, Parcel::ScratchArea.root) do |file|
-					AWS::S3::S3Object.stream(path, options[:bucket]) { |chunky| file.write chunky }
-					yield file
+				key = bucket.key(path)
+
+				filename = Tempfile.new("#{object_id}_#{Process.pid}", Parcel::ScratchArea.root).path
+
+				File.open(filename, "w") do |file| 
+					key.get { |chunky| file.write chunky }
 				end
+
+				File.open(filename) { |file| yield file }
+				File.unlink(filename)
+				
+			rescue Aws::AwsError => ex
+				raise unless ex.message =~ /^NoSuchKey/
 			end
 
 			def delete
