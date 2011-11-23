@@ -16,14 +16,14 @@ module Parcel
 	module Interfaces
 		require 'parcel/interfaces/base'
 		require 'parcel/interfaces/scratch_space_base'
-		require 'parcel/interfaces/zip_file_interface' if defined?(Zip::ZipFile)
-		require 'parcel/interfaces/r_magick_interface' if defined?(RMagick)
+		require 'parcel/interfaces/zip_file_interface'
+		require 'parcel/interfaces/r_magick_interface'
 	end
 
 	module Storage
 		require 'parcel/storage/base'
 		require 'parcel/storage/local_storage'
-		require 'parcel/storage/aws_s3_storage' if defined?(AWS::S3::Base)
+		require 'parcel/storage/aws_s3_storage'
 		require 'parcel/storage/warehouse_storage'
 	end
 
