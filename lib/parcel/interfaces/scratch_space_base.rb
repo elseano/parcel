@@ -6,7 +6,7 @@ module Parcel
 
 			def initialize(*args)
 				super
-				@scratch = Parcel::ScratchArea.new
+				@scratch = Parcel.scratch_class.new
 			end
 
 			def import(stream)
