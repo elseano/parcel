@@ -36,7 +36,7 @@ module Parcel
 
                     return nil
                 else
-                    Zip::ZipFile.open( @scratch.path('original'), Zip::ZipFile::READ ) do |reader|
+                    Zip::ZipFile.open( @scratch.path('original') ) do |reader|
                         if entry = reader.find_entry(filename)
                             extracted_path = @scratch.path("extracted_#{entry.name}")
                             entry.extract extracted_path
