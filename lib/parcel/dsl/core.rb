@@ -27,6 +27,7 @@ module Parcel
 				def has_parcel(options = {})
 					raise ArgumentError, "options must be a hash" unless options.is_a?(Hash)
 					options = DEFAULT_OPTIONS.merge(options)
+					options[:name] = options[:name].to_s
 
 					self.class_eval do
 						eval %{
