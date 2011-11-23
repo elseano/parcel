@@ -6,14 +6,14 @@ describe Parcel::DSL do
 
 		it "should create the accessor" do
 			temp_class = Class.new
-			temp_class.has_parcel :name => "test_parcel"
+			temp_class.has_parcel :name => "test_parcel", :interface => :dummy
 
 			temp_class.new.should respond_to(:test_parcel)
 		end
 
 		it "should return a parcel proxy" do
 			temp_class = Class.new
-			temp_class.has_parcel
+			temp_class.has_parcel :interface => :dummy
 
 			temp_class.new.parcel.should be_a(Parcel::Proxy)
 		end
