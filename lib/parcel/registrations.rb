@@ -1,4 +1,7 @@
 module Parcel
+	class InvalidInterface < StandardError; end
+	class InvalidStorage < StandardError; end
+
 	def self.register_interface(name, class_type)
 		@interfaces ||= Hash.new
 		@interfaces[name.to_sym] = class_type
@@ -9,11 +12,13 @@ module Parcel
 		@storages[name.to_sym] = class_type
 	end
 
-	def self.resolve_interface(name)
-		@interfaces[name.to_sym]
+	def self.interface(name)
+		@interfaces ||= Hash.new
+		@interfaces[name.to_sym] || raise(InvalidInterface, "Interface #{name} not found.")
 	end
 
-	def self.resolve_storage(name)
-		@storages[name.to_sym]
+	def self.storage(name)
+		@storages ||= Hash.new
+		@storages[name.to_sym] || raise(InvalidStorage, "Storage #{name} not found.")
 	end
 end

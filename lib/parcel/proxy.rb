@@ -14,8 +14,8 @@ module Parcel
 			format = options[:interface]
 			backend = options[:storage]
 
-			@_format = format.is_a?(Symbol) ? Parcel.resolve_interface(format).new(object, name, options) : format
-			@_backend = backend.is_a?(Symbol) ? Parcel.resolve_storage(backend).new(object, name, options) : backend
+			@_format = format.is_a?(Symbol) ? Parcel.interface(format).new(object, name, options) : format
+			@_backend = backend.is_a?(Symbol) ? Parcel.storage(backend).new(object, name, options) : backend
 		end
 
 		# Yields the data stream from the interface. Used when saving the parcel. Is a no-op if

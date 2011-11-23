@@ -11,11 +11,11 @@ module Parcel
 		class WarehouseStorage < Base
 
 			def fast_storage
-				@fast ||= Parcel.resolve_storage(options[:fast_storage]).new(object, name, options)
+				@fast ||= Parcel.storage(options[:fast_storage]).new(object, name, options)
 			end
 
 			def warehouse_storage
-				@warehouse ||= Parcel.resolve_storage(options[:warehouse_storage]).new(object, name, options)
+				@warehouse ||= Parcel.storage(options[:warehouse_storage]).new(object, name, options)
 			end
 
 			def write(data_stream)
