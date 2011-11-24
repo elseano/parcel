@@ -1,5 +1,6 @@
 module Parcel
 	module Storage
+		class WarehousedError < StandardError; end
 
 		# The warehouse storage option allows for two storage repositories, with the first
 		# acting as a faster or more frequently accessed repository, and the second acting
@@ -19,30 +20,29 @@ module Parcel
 			end
 
 			def write(data_stream)
+				raise WarehousedError if warehoused?
 				fast_storage.write(data_stream)
 			end
 
-			# Checks for the files presence by attempting to read it.
-			def in_fast_storage?
-				fast_storage.read do
-					return true
-				end
-
-				return false
+			# Is the parcel currently warehoused?
+			def warehoused?
+				@warehoused == true
 			end
 
 			def read
-				yielded = false
-				reader = proc { |input| yielded = true; yield input }
+				@warehoused = nil
 
-				result = fast_storage.read(&reader)
-				return result if yielded
-
-				warehouse_storage.read do |input|
-					fast_storage.write(input)
+				fast_storage.read do |input|
+					yield input
+					@warehoused = false
 				end
 
-				fast_storage.read(&reader)
+				return if @warehoused == nil
+
+				warehouse_storage.read do |input|
+					yield input
+					@warehoused = true
+				end
 			end
 
 			# Deletes the data asset from both the warehouse and the fast storage.
@@ -53,11 +53,28 @@ module Parcel
 
 			# Moves the data asset into the warehouse.
 			def warehouse!
+				return if warehoused?
 				fast_storage.read do |input|
 					warehouse_storage.write(input)
 				end
 
 				fast_storage.delete
+				@warehoused = true
+
+				object.send(options[:after_warehouse]) if options[:after_warehouse]
+			end
+
+			def retrieve!
+				return unless warehoused?
+
+				warehouse_storage.read do |input|
+					fast_storage.write(input)
+				end
+
+				warehouse_storage.delete
+				@warehoused = false
+
+				object.send(options[:after_retrieve]) if options[:after_retrieve]
 			end
 
 		end
