@@ -22,6 +22,15 @@ module Parcel
 				fast_storage.write(data_stream)
 			end
 
+			# Checks for the files presence by attempting to read it.
+			def in_fast_storage?
+				fast_storage.read do
+					return true
+				end
+
+				return false
+			end
+
 			def read
 				yielded = false
 				reader = proc { |input| yielded = true; yield input }
