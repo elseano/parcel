@@ -16,7 +16,9 @@ module Parcel
 			end
 
 			def path
-				File.join(*[object.send(:parcel_path), options[:name]].reject { |x| x.to_s.length == 0 })
+				path = File.join(*[object.send(:parcel_path), name].reject { |x| x.to_s.length == 0 })
+				path = "#{path}.#{options[:extension]}" if options[:extension]
+				path
 			end
 
 			def bucket

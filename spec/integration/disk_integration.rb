@@ -31,14 +31,41 @@ describe Parcel do
 
 			object.parcel.save
 
-			File.exist?(Parcel::Storage::LocalStorage.root).should be_true
+			expected = File.join(Parcel::Storage::LocalStorage.root, "parcel")
+			File.exist?(expected).should be_true
 		end
 
 		it "should not change an existing respository until saved" do
 			object = template.new
 			object.parcel.add_file("some_file", "This is file data which will be compressed")
 
-			File.exist?(Parcel::Storage::LocalStorage.root).should_not be_true
+			expected = File.join(Parcel::Storage::LocalStorage.root, "parcel")
+			File.exist?(expected).should_not be_true
+		end
+
+	end
+
+	describe "zip repository with a path and an extension" do
+		let :template do
+			template = Class.new
+			template.has_parcel :name => "parcel", :storage => :disk, :interface => :zip, :extension => "zip"
+			template.send(:define_method, :parcel_path) { "some_path" }
+			template
+		end
+
+		before(:each) do
+			FileUtils.rm_rf(Parcel::Storage::LocalStorage.root)
+		end
+
+		it "should store a zip repository to hard drive" do
+			object = template.new
+			object.parcel.should be_a(Parcel::Proxy)
+
+			object.parcel.add_file("some_file", "This is file data which will be compressed")
+			object.parcel.save
+
+			expected = File.join(Parcel::Storage::LocalStorage.root, "some_path", "parcel.zip")
+			File.exist?(expected).should be_true
 		end
 
 	end

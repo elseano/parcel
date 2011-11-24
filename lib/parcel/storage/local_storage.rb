@@ -2,12 +2,18 @@ module Parcel
 	module Storage
 		class LocalStorage < Parcel::Storage::Base
 			class << self
-				attr_accessor :root
+				def root=(value)
+					@root = File.expand_path(value)
+				end
+				
+				attr_reader :root
 			end
 
 			def path
 				raise "You need to setup Parcel::Storage::LocalStorage.root" if self.class.root.nil?
-				File.join(*[self.class.root, object.send(:parcel_path), name].reject { |x| x.to_s.length == 0 })
+				path = File.join(*[self.class.root, object.send(:parcel_path), name].reject { |x| x.to_s.length == 0 })
+				path = "#{path}.#{options[:extension]}" if options[:extension]
+				File.expand_path(path)
 			end
 
 			def write(data_stream)
