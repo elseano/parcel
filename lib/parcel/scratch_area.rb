@@ -63,9 +63,24 @@ module Parcel
 			File.open("#{prepared_root}/#{name}", mode) { |f| return yield f }
 		end
 
+		# Reads the contents of the file into memory and returns it as a string.
+		def read(name)
+			IO.read(path(name)) if exist?(name)
+		end
+
+		# Works like +read+ but if the file doesn't exist, yields a block with
+		# the new file so it can be created. Then returns the contents of the 
+		# newly created file.
+		def fetch(name)
+			read(name) || begin
+				open(name, "w") { |f| yield f }
+				read(name)
+			end
+		end
+
 		# Deletes a file from the scratch space.
 		def delete(name)
-			FileUtils.rm("#{prepared_root}/name") if exist?(name)
+			FileUtils.rm(path(name)) if exist?(name)
 		end
 
 		# Imports a file, stream, or data into the scratch space in one operation.
