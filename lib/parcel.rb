@@ -4,12 +4,13 @@ module Parcel
 		attr_accessor :scratch_class
 	end
 
+	require 'parcel/path_utilities'
 	require 'parcel/proxy'
 	require 'parcel/scratch_area'
 	require 'parcel/registrations'
 
 	module DSL
-		require 'parcel/dsl/core'
+		require 'parcel/dsl/has_parcel'
 		require 'parcel/dsl/active_record' if defined?(ActiveRecord::Base)
 	end
 

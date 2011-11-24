@@ -1,7 +1,7 @@
 module Parcel
 	module DSL
 
-		module Core
+		module HasParcel
 
 			DEFAULT_OPTIONS = {
 				:name => "parcel",
@@ -24,23 +24,37 @@ module Parcel
 				# :name 		The name of the accessor method for the parcel (default 'parcel')
 				# :storage		How the parcel should be stored. Can be an array for fallback attempts (default 'disk')
 				# :interface	What kind of parcel do we want to provide (default 'zip')
-				def has_parcel(options = {})
+				def has_parcel(*args)
+					options = args.last.is_a?(Hash) ? args.pop : DEFAULT_OPTIONS
 					raise ArgumentError, "options must be a hash" unless options.is_a?(Hash)
 					options = DEFAULT_OPTIONS.merge(options)
-					options[:name] = options[:name].to_s
+
+					name = args.first.is_a?(String) || args.first.is_a?(Symbol) ? args.shift : options[:name]
+					name = name.to_s
+					options[:name] = name
+
+					raise ArgumentError, "You must provide a name for the parcel" if name.to_s.strip.length == 0
 
 					self.class_eval do
 						eval %{
-							def #{options[:name]}
-								@_parcel_#{options[:name]} ||= Parcel::Proxy.new(self, #{options[:name].inspect}, #{options.inspect})
+							def #{name}
+								@_parcel_#{name} ||= Parcel::Proxy.new(self, #{name.inspect}, #{options.inspect})
 							end
 						}
 
-						eval %{
-							def parcel_path
-								raise NotImplementedError
-							end
-						}
+						if options[:path].is_a?(String)
+							eval %{
+								def parcel_path
+									#{options[:path].inspect}
+								end
+							}
+						else
+							eval %{
+								def parcel_path
+									raise NotImplementedError
+								end
+							}
+						end
 					end
 
 					options
@@ -54,4 +68,4 @@ module Parcel
 	end
 end
 
-Object.send(:include, Parcel::DSL::Core)
+Object.send(:include, Parcel::DSL::HasParcel)
