@@ -15,8 +15,8 @@ module Parcel
 			end
 
 			module ClassMethods
-				def has_parcel_with_active_record(options)
-					options = has_parcel_without_active_record(options)
+				def has_parcel_with_active_record(*args)
+					options = has_parcel_without_active_record(*args)
 
 					self.class_eval do
 						eval %{
@@ -31,9 +31,7 @@ module Parcel
 							def parcel_path
 								raise Parcel::EmptyRepository, "Cannot read the repository for an unsaved ActiveRecord object." if id.nil?
 								
-								id_str = id.to_s.scan(/.{1,4}/).join('/')
-								id_str.gsub!("0000/", "")
-
+								id_str = Parcel::PathUtilities.breakdown_integer(id).join('/')
 								"\#{self.class.name.underscore}/\#{id_str}"
 							end
 						}
