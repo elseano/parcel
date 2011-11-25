@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
 describe Parcel::Storage::WarehouseStorage do
 
 	let :object do
-		mock("object")
+		mock("object", :warehoused? => false)
 	end
 
 	subject do
@@ -56,18 +56,17 @@ describe Parcel::Storage::WarehouseStorage do
 			end
 		end
 
-		it "should not yield to the warehouse storage if fast storage returns data" do
+		it "should read from fast_storage if not warehoused" do
 			subject.fast_storage.should_receive(:read).and_yield("stuff")
 			subject.warehouse_storage.should_receive(:read).never
 
 			subject.read { nil }
 		end
 
-		it "should yield to the warehouse storage and put data into fast storage" do
-			subject.fast_storage.should_receive(:read).and_return(nil)
+		it "should read from the warehouse storage if warehoused" do
+			object.stub!(:warehoused?).and_return true
+			subject.fast_storage.should_receive(:read).never
 			subject.warehouse_storage.should_receive(:read).and_yield("warehouse")
-			subject.fast_storage.should_receive(:write).with("warehouse")
-			subject.fast_storage.should_receive(:read).and_return("warehouse")
 
 			subject.read do |data|
 				data.should == "warehouse"
@@ -94,15 +93,21 @@ describe Parcel::Storage::WarehouseStorage do
 
 	describe "#warehouse!" do
 
-		it "should write the fast storage version to the warehouse" do
+		it "should write the fast storage version to the warehouse and mark warehoused" do
 			subject.fast_storage.should_receive(:read).and_yield("data")
+			subject.fast_storage.should_receive(:delete)
+
 			subject.warehouse_storage.should_receive(:write).with("data")
 
-			subject.warehouse!
-		end
+			expected_id = 101
+			activerecord = mock("ActiveRecord::Base")
 
-		it "should delete the file from fast storage" do
-			subject.fast_storage.should_receive(:delete)
+			object.stub!(:id).and_return(expected_id)
+			activerecord.should_receive(:update_all).with("warehoused = true", "id = #{expected_id}")
+
+			object.should_receive(:warehoused=).with(true)
+			object.should_receive(:class).and_return(activerecord)
+
 			subject.warehouse!
 		end
 

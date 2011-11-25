@@ -15,8 +15,8 @@ module Parcel
 		class WarehouseStorage < Base
 			class << self
 				attr_accessor :raise_warehoused_errors
-				self.raise_save_errors = true
 			end
+			self.raise_warehoused_errors = true
 
 			def fast_storage
 				@fast ||= Parcel.storage(options[:fast_storage]).new(object, name, options)
@@ -28,7 +28,7 @@ module Parcel
 
 			def write(data_stream)
 				if warehoused?
-					raise(WarehousedError, "Cannot save a warehoused file") if self.class.raise_save_errors
+					raise(WarehousedError, "Cannot save a warehoused file") if self.class.raise_warehoused_errors
 				else
 					fast_storage.write(data_stream)
 				end
@@ -39,6 +39,7 @@ module Parcel
 				read_warehouse_state
 			end
 
+			# Read the file data from wherever it has been stored (depending on #warehoused?)
 			def read
 				if warehoused?
 					warehouse_storage.read do |input|
@@ -64,18 +65,24 @@ module Parcel
 			# warehousing. 
 			def warehouse!
 				return if warehoused?
+
+				success = false
+
 				fast_storage.read do |input|
 					warehouse_storage.write(input)
 					write_warehouse_state(true)
+					success = true
 				end
 
-				raise(EmptyRepository, "Nothing to warehouse") unless warehoused?
+				raise(EmptyRepository, "Nothing to warehouse") unless success
 
 				fast_storage.delete
 
 				object.send(options[:after_warehouse]) if options[:after_warehouse]
 			end
 
+			# Grabs the parcel back out of warehouse storage and places it on the
+			# fast storage area for manipulation.
 			def retrieve!
 				return unless warehoused?
 
@@ -96,7 +103,7 @@ module Parcel
 			end
 
 			def write_warehouse_state(value)
-				object.warehouse = value
+				object.warehoused = value
 				object.class.update_all("warehoused = #{value.to_s}", "id = #{object.id}")
 			end
 
