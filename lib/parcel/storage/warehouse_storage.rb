@@ -13,6 +13,10 @@ module Parcel
 		# Warehouse state is stored on a warehoused active record attribute. Override this
 		# class and its registration to integrate with other storage mechanisms.
 		class WarehouseStorage < Base
+			class << self
+				attr_accessor :raise_warehoused_errors
+				self.raise_save_errors = true
+			end
 
 			def fast_storage
 				@fast ||= Parcel.storage(options[:fast_storage]).new(object, name, options)
@@ -23,8 +27,11 @@ module Parcel
 			end
 
 			def write(data_stream)
-				raise(WarehousedError, "Cannot save a warehoused file") if warehoused?
-				fast_storage.write(data_stream)
+				if warehoused?
+					raise(WarehousedError, "Cannot save a warehoused file") if self.class.raise_save_errors
+				else
+					fast_storage.write(data_stream)
+				end
 			end
 
 			# Is the parcel currently warehoused? Delegates to the warehoused indicator option.
