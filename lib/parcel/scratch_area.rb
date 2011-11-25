@@ -30,10 +30,10 @@ module Parcel
 
 		# Generates a scratch space directory name.
 		def self.designate
-			uuid_component = `uuidgen`.strip
-			date_component = Time.now.strftime("%Y/%m/%d")
+			unique_component = `uuidgen`.strip rescue nil
+			unique_component = "#{Process.pid}_#{rand(10000)}_#{Time.now.to_i}" if unique_component.to_s == ""
 
-			File.join(@root, "parcel", date_component, uuid_component)
+			File.join(@root, "parcel", uuid_component)
 		end
 
 		# Ensures the scratch space has been created on the hard drive, registers the scratch space directory
