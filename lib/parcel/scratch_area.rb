@@ -33,7 +33,7 @@ module Parcel
 			unique_component = `uuidgen`.strip rescue nil
 			unique_component = "#{Process.pid}_#{rand(10000)}_#{Time.now.to_i}" if unique_component.to_s == ""
 
-			File.join(@root, "parcel", uuid_component)
+			File.join(@root, "parcel", unique_component)
 		end
 
 		# Ensures the scratch space has been created on the hard drive, registers the scratch space directory
