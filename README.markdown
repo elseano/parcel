@@ -99,17 +99,24 @@ The S3 storage requires a bucket name to be provided to `has_parcel`. Example:
 
 ## Using WarehouseStorage
 
-The warehouse storage method requires two additional options provided to has_parcel, as well as any options required by the two additional storage methods.
+The warehouse storage method requires two additional options provided to has_parcel, as well as any options required by the two additional storage methods. It also requires ActiveRecord in order to persist the warehoused state on the `warehoused` attribute.
+
+You can tailor it to whatever persistenace library required by overriding the `read_warehouse_state` and `write_warehouse_state` methods.
 
     class AnotherClass
         has_parcel :log, :interface => :log_file, :storage => :warehouse, :fast_storage => :disk, :warehouse_storage => :s3, :bucket => "logs"
     end
 
-When a parcel uses the Warehouse storage method, all parcels are stored using the `fast_storage` option, until the `warehouse!` method is called. At that point the parcel is moved from the `fast_storage` to the `warehouse_storage`. This move is reverted if the parcel is accessed again.
+When a parcel uses the Warehouse storage method, all parcels are stored using the `fast_storage` option until the `warehouse!` method is called. At that point the parcel is moved from the `fast_storage` to the `warehouse_storage`, the `warehoused` attribute is updated, and the parcel will then be accessed from the warehouse location.
+
+**Exceptions**
+
+* `Parcel::Storage::WarehousedError` - Raised when you attempt to save a Parcel which has been warehoused. Use `retrieve!` to move the Parcel back into the fast storage for modification.
+* `Parcel::EmptyRepository` - Raised when attempting to warehouse a non-existant parcel.
 
 # Interface Options
 
-Interface classes are regsitered using the following syntax:
+Interfaces define exactly _what_ your parcel is, and how you are able to work with it. Interface classes are regsitered using the following syntax:
 
     Parcel.register_interface(alias, class)
 
@@ -119,11 +126,33 @@ Like the Storage options, registrations replace older ones. For example:
 
 All interface classes must inherit from `Parcel::Interfaces::Base`, or `Parcel::Interfaces::ScratchSpaceBase`, and implement the methods described there. See the comments on the `Base` class for more information.
 
-# Using ZipFileInterface
+## Using ZipFileInterface
+
+Methods:
+
+* `read_file(name)` - Reads a file from your zip parcel. If a wildcard is given, reads the first file found. Returns nil if the file doesn't exist.
+* `add_file(name,data)` - Adds to file to the parcel.
+* `contents` - Returns the files present in your parcel.
+
+Uses the ScratchArea to allow changes to be made without affecting the "authoritative" version of the zip file. This "authoritative" version is updated when the parcel is saved.
+
+## Using RMagickInterface
 
 TODO
 
-# Using RMagickInterface
+# ActiveRecord Integration
 
-TODO
+Parcel will integrate with ActiveRecord by placing an `after_save` event handler on your model. This will autoamtically save the parcel for you once the model has been saved.
 
+For example:
+
+    has_parcel :package
+
+Will add a method called `write_parcel_package` and `delete_parcel_package` which will be hooked up to `after_save` and `afer_destroy` respectively. Another method, called `parcel_path` will be added, which will delegate to `Parcel::DSL::ActiveRecord.parcel_path`. You can tailor how paths are generated
+by changing this method in your model, or by monkey-patching the module method itself.
+
+It is important to know that if a parcel has not been modified, Parcel will not attempt to save it. This is an optimisation so a model can be updated without having a backend round-trip (such as to S3).
+
+Because Parcel automatically is setup to save a Parcel when a model is saved, if you modify a Parcel which has been Warehoused, then saving the record will raise an exception. This can be overridden as follows:
+
+Parcel.storage(:warehouse).raise_warehoused_errors = false
