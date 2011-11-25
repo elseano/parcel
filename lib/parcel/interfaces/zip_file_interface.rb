@@ -34,7 +34,7 @@ module Parcel
                     if @scratch.exist?("extracted_#{filename}")
                         return @scratch.read("extracted_#{filename}")
                     end
-                    
+
                     Zip::ZipFile.open( @scratch.path('original') ) do |reader|
                         if entry = reader.find_entry(filename)
                             return @scratch.fetch("extracted_#{entry.name}") do |dest|
@@ -60,6 +60,8 @@ module Parcel
                         end
                     end
                 end
+
+                modified!
             end
 
         end

@@ -27,6 +27,8 @@ module Parcel
 				if options[:store_meta_data]
 					write_meta_data
 				end
+
+				modified!
 			end
 
 			def write_meta_data
