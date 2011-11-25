@@ -54,9 +54,9 @@ module Parcel
 		# Delegates calls to the interface, or the storage if the interface
 		# doesn't respond to the method.
 		def method_missing(name, *args)
-			prepare
-
 			if _format.respond_to?(name)
+				# Prepare when we're accessing the interface as it requires the data.
+				prepare
 				_format.send(name, *args)
 			elsif _backend.respond_to?(name)
 				_backend.send(name, *args)
