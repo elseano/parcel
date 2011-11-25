@@ -18,7 +18,7 @@ module Parcel
 				raise Parcel::EmptyRepository, "Cannot read the repository for an unsaved ActiveRecord object." if object.id.nil?
 				
 				id_str = Parcel::PathUtilities.breakdown_integer(object.id).join('/')
-				"\#{object.class.name.underscore}/\#{id_str}"
+				"#{object.class.name.underscore}/#{id_str}"
 			end
 
 			module ClassMethods
