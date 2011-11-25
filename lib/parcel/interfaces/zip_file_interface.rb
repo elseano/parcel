@@ -5,7 +5,7 @@ module Parcel
             File = Struct.new(:name, :size)
 
             # Returns all the files present in the repository.
-            def files
+            def contents
                 return [] unless @scratch.exist?("original")
 
                 result = Array.new

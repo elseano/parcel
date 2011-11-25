@@ -6,7 +6,7 @@ describe Parcel::Interfaces::ZipFileInterface do
 		mock("object")
 	end
 
-	describe "#files" do
+	describe "#contents" do
 		it "should return an empty array if no zip file"
 		it "should return the files of the imported zip file"
 	end
