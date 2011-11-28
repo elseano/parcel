@@ -10,13 +10,13 @@ module Parcel
 
 			# Accepts a block to which a data stream is yielded. It should
 			# not yield if the data has not been modified. The yielded
-			# stream must be able to be used with IO.copy_stream.
+			# stream must be able to be used with FileUtils.copy_stream.
 			def stream
 				raise NotImplementedError
 			end
 
 			# Imports an existing stream into the interface. The steam
-			# must be able to be used with IO.copy_stream.
+			# must be able to be used with FileUtils.copy_stream.
 			def import(stream)
 				raise NotImplementedError
 			end

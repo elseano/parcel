@@ -1,1 +1,3 @@
 * Proxy.save probably needs a save! to override modification detection.
+* Proxy.stream!
+* Proxy.copy(destination_parcel)

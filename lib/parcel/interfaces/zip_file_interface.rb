@@ -59,7 +59,7 @@ module Parcel
                 Zip::ZipFile.open( @scratch.path('original'), Zip::ZipFile::CREATE ) do |writer|
                     writer.get_output_stream(filename) do |file|
                         if contents_or_stream.respond_to?(:read)
-                            IO.copy_stream(contents_or_stream, file)
+                            FileUtils.copy_stream(contents_or_stream, file)
                         else
                             file.write contents_or_stream
                         end
