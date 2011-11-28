@@ -4,6 +4,11 @@ module Parcel
         class ZipFileInterface < ScratchSpaceBase
             File = Struct.new(:name, :size)
 
+            def initialize(*args)
+                super
+                options[:extension] ||= "zip"
+            end
+
             # Returns all the files present in the repository.
             def contents
                 return [] unless @scratch.exist?("original")

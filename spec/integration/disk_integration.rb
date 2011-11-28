@@ -31,7 +31,7 @@ describe Parcel do
 
 			object.parcel.save
 
-			expected = File.join(Parcel::Storage::LocalStorage.root, "parcel")
+			expected = File.join(Parcel::Storage::LocalStorage.root, "parcel.zip")
 			File.exist?(expected).should be_true
 		end
 
@@ -39,7 +39,7 @@ describe Parcel do
 			object = template.new
 			object.parcel.add_file("some_file", "This is file data which will be compressed")
 
-			expected = File.join(Parcel::Storage::LocalStorage.root, "parcel")
+			expected = File.join(Parcel::Storage::LocalStorage.root, "parcel.zip")
 			File.exist?(expected).should_not be_true
 		end
 
@@ -48,7 +48,7 @@ describe Parcel do
 	describe "zip repository with a path and an extension" do
 		let :template do
 			template = Class.new
-			template.has_parcel :name => "parcel", :storage => :disk, :interface => :zip, :extension => "zip"
+			template.has_parcel :name => "parcel", :storage => :disk, :interface => :zip, :extension => "other"
 			template.send(:define_method, :parcel_path) { "some_path" }
 			template
 		end
@@ -64,7 +64,7 @@ describe Parcel do
 			object.parcel.add_file("some_file", "This is file data which will be compressed")
 			object.parcel.save
 
-			expected = File.join(Parcel::Storage::LocalStorage.root, "some_path", "parcel.zip")
+			expected = File.join(Parcel::Storage::LocalStorage.root, "some_path", "parcel.other")
 			File.exist?(expected).should be_true
 		end
 

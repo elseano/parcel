@@ -32,12 +32,18 @@ describe Parcel do
 			template = Class.new
 			template.has_parcel :name => "parcel", :storage => :warehouse, :interface => :zip, :fast_storage => :disk, :warehouse_storage => :s3, :bucket => ENV["PARCEL_BUCKET"]
 			template.send(:define_method, :parcel_path) { "" }
+			template.send(:define_method, :warehoused?) { @warehoused }
+			template.send(:define_method, :warehoused=) { |value| @warehoused = value }
+
+			def template.update_all(*args)
+			end
+
 			template
 		end
 
 		before(:each) do
 			FileUtils.rm_rf(Parcel::Storage::LocalStorage.root)
-			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel").delete rescue nil
+			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").delete rescue nil
 		end
 	
 		it "should write to fast storage" do
@@ -45,7 +51,7 @@ describe Parcel do
 			object.parcel.add_file "some_file", "This is the file data to add"
 			object.parcel.save
 
-			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel")
+			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
 			File.exist?(expected_path).should be_true
 		end
 
@@ -54,10 +60,10 @@ describe Parcel do
 			object.parcel.add_file "some_file", "This is the file data to add"
 			object.parcel.save
 
-			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel")
+			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
 			File.exist?(expected_path).should be_true
 
-			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel").exists?.should be_false
+			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").exists?.should be_false
 		end
 
 		it "should warehouse the object when commanded" do
@@ -67,10 +73,10 @@ describe Parcel do
 
 			object.parcel.warehouse!
 
-			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel")
+			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
 			File.exist?(expected_path).should be_false
 
-			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel").exists?.should be_true
+			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").exists?.should be_true
 		end
 
 	end

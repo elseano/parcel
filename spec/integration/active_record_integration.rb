@@ -55,7 +55,7 @@ describe Parcel do
 
 			object.save!
 
-			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel")
+			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
 			File.exist?(expected_path).should be_true
 		end
 
