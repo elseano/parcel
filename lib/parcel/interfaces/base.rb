@@ -1,6 +1,11 @@
 module Parcel
 	module Interfaces
 
+		# The most basic of parcel interfaces. Generally you won't want to
+		# inherit directly from this class unless you would like changed to object
+		# through the interface to apply immediately to parcels. If you would like
+		# protection from immediate changes, inherit the ScratchSpaceBase class
+		# instead.
 		class Base
 			attr_reader :object, :name, :options
 

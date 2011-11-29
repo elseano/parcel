@@ -4,6 +4,7 @@ module Parcel
 		class RMagickInterface < ScratchSpaceBase
 			ImageData = Struct.new(:columns, :rows, :format, :image_type)
 
+			# Returns image meta_data: columns, rows, format and image_type.
 			def meta_data
 				@_meta_data ||= begin
 					rmagick = self.image.first
@@ -12,6 +13,7 @@ module Parcel
 				end
 			end
 
+			# Writes the image data.
 			def data=(stream_or_data)
 				if stream_or_data.is_a?(RMagick::ImageList)
 					stream_or_data.write @scratch.path("original")
