@@ -13,10 +13,16 @@ module Parcel
 				@object, @name, @options = object, name, options
 			end
 
+			# Yields the data stream of the interface data was modified.
+			def stream(&block)
+				return unless modified?
+				stream!(&block)
+			end
+
 			# Accepts a block to which a data stream is yielded. It should
 			# not yield if the data has not been modified. The yielded
 			# stream must be able to be used with FileUtils.copy_stream.
-			def stream
+			def stream!(&block)
 				raise NotImplementedError
 			end
 
@@ -24,6 +30,16 @@ module Parcel
 			# must be able to be used with FileUtils.copy_stream.
 			def import(stream)
 				raise NotImplementedError
+			end
+
+			# Marks the data as having been modified.
+			def modified!
+				@modified = true
+			end
+
+			# Returns true if the data stream was modified.
+			def modified?
+				@modified == true
 			end
 
 		end

@@ -50,7 +50,6 @@ module Parcel
 								@_parcel_#{name} ||= Parcel::Proxy.new(self, #{name.inspect}, #{options.inspect})
 							end
 
-
               def #{options[:name]}_uploaded=(value)
                 Parcel::DSL::Parcel.process_uploaded_stream(value, #{options[:name]})
               end

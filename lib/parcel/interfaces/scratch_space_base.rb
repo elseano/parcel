@@ -22,26 +22,11 @@ module Parcel
 				@scratch.import("original", stream)
 			end
 
-			# Yields the data stream of the interface data was modified.
-			def stream(&block)
-				return unless modified?
-				stream!(&block)
-			end
-
 			# Yields the data stream irrespective of modification.
 			def stream!
 				@scratch.open("original") { |file| yield file }
 			end
 
-			# Marks the data as having been modified.
-			def modified!
-				@modified = true
-			end
-
-			# Returns true if the data stream was modified.
-			def modified?
-				@modified == true
-			end
 		end
 
 	end
