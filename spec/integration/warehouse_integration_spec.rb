@@ -18,68 +18,68 @@ Parcel.storage(:s3).setup ENV["AMAZON_ACCESS_KEY_ID"], ENV["AMAZON_SECRET_ACCESS
 # Use AMAZON_ACCESS_KEY_ID & AMAZON_SECRET_ACCESS_KEY
 
 # AWS::S3::Base.establish_connection!(
-# 	:access_key_id     => 'abc',
-# 	:secret_access_key => '123'
+#   :access_key_id     => 'abc',
+#   :secret_access_key => '123'
 # )
 
 s3_check = Aws::S3.new ENV["AMAZON_ACCESS_KEY_ID"], ENV["AMAZON_SECRET_ACCESS_KEY"]
 
 describe Parcel do
 
-	describe "zip repository warehousing" do
+  describe "zip repository warehousing" do
 
-		let :template do
-			template = Class.new
-			template.has_parcel :name => "parcel", :storage => :warehouse, :interface => :zip, :fast_storage => :disk, :warehouse_storage => :s3, :bucket => ENV["PARCEL_BUCKET"]
-			template.send(:define_method, :parcel_path) { "" }
-			template.send(:define_method, :warehoused?) { @warehoused }
-			template.send(:define_method, :warehoused=) { |value| @warehoused = value }
+    let :template do
+      template = Class.new
+      template.has_parcel :name => "parcel", :storage => :warehouse, :interface => :zip, :fast_storage => :disk, :warehouse_storage => :s3, :bucket => ENV["PARCEL_BUCKET"]
+      template.send(:define_method, :parcel_path) { "" }
+      template.send(:define_method, :warehoused?) { @warehoused }
+      template.send(:define_method, :warehoused=) { |value| @warehoused = value }
 
-			def template.update_all(*args)
-			end
+      def template.update_all(*args)
+      end
 
-			template
-		end
+      template
+    end
 
-		before(:each) do
-			FileUtils.rm_rf(Parcel::Storage::LocalStorage.root)
-			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").delete rescue nil
-		end
-	
-		it "should write to fast storage" do
-			object = template.new
-			object.parcel.add_file "some_file", "This is the file data to add"
-			object.parcel.save
+    before(:each) do
+      FileUtils.rm_rf(Parcel::Storage::LocalStorage.root)
+      s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").delete rescue nil
+    end
+  
+    it "should write to fast storage" do
+      object = template.new
+      object.parcel.add_file "some_file", "This is the file data to add"
+      object.parcel.save
 
-			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
-			File.exist?(expected_path).should be_true
-		end
+      expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
+      File.exist?(expected_path).should be_true
+    end
 
-		it "should not write to warehouse by default" do
-			object = template.new
-			object.parcel.add_file "some_file", "This is the file data to add"
-			object.parcel.save
+    it "should not write to warehouse by default" do
+      object = template.new
+      object.parcel.add_file "some_file", "This is the file data to add"
+      object.parcel.save
 
-			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
-			File.exist?(expected_path).should be_true
+      expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
+      File.exist?(expected_path).should be_true
 
-			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").exists?.should be_false
-		end
+      s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").exists?.should be_false
+    end
 
-		it "should warehouse the object when commanded" do
-			object = template.new
-			object.parcel.add_file "some_file", "This is the file data to add"
-			object.parcel.save
+    it "should warehouse the object when commanded" do
+      object = template.new
+      object.parcel.add_file "some_file", "This is the file data to add"
+      object.parcel.save
 
-			object.parcel.warehouse!
+      object.parcel.warehouse!
 
-			expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
-			File.exist?(expected_path).should be_false
+      expected_path = File.join(Parcel::Storage::LocalStorage.root, object.parcel_path, "parcel.zip")
+      File.exist?(expected_path).should be_false
 
-			s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").exists?.should be_true
-		end
+      s3_check.bucket(ENV["PARCEL_BUCKET"]).key("parcel.zip").exists?.should be_true
+    end
 
-	end
+  end
 
 end
 
