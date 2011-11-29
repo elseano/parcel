@@ -2,3 +2,4 @@
 specdb
 tmp/*
 *.zip
+.rvmrc
