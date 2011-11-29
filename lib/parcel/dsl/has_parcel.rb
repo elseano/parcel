@@ -16,6 +16,15 @@ module Parcel
 				end
 			end
 
+      # Takes the given stream and imports it into the repository.
+      def self.process_uploaded_stream(stream, proxy)
+        File.open(stream.path) do |file|
+          proxy.import(file)
+          proxy.modified!
+        end
+      end
+
+
 			module ClassMethods
 
 				# Specifies a parcel on a class.
@@ -40,6 +49,12 @@ module Parcel
 							def #{name}
 								@_parcel_#{name} ||= Parcel::Proxy.new(self, #{name.inspect}, #{options.inspect})
 							end
+
+
+              def #{options[:name]}_uploaded=(value)
+                Parcel::DSL::Parcel.process_uploaded_stream(value, #{options[:name]})
+              end
+
 						}
 
 						if options[:path].is_a?(String)
