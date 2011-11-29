@@ -39,6 +39,16 @@ module Parcel
 			@_proxy_prepared = false
 		end
 
+		# Copies the contents of the parcel into another parcel. Works on the
+		# unsaved parcel data.
+		def copy_to(destination_proxy)
+			prepare
+			_format.stream! do |f|
+				destination_proxy.import(f)
+				destination_proxy.modified!
+			end
+		end
+
 		# Prepares the parcel by loading the data into the interface.
 		def prepare
 			@_proxy_prepared ||= begin
