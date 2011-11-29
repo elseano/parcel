@@ -43,6 +43,8 @@ module Parcel
 
 					after_save "write_parcel_#{options[:name]}".to_sym
 					after_destroy "delete_parcel_#{options[:name]}".to_sym
+
+					options
 				end
 			end
 
